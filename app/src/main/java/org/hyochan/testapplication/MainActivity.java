@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import org.hyochan.testapplication.clipboard_test.ClipboardTestActivity;
 import org.hyochan.testapplication.naver_test.NaverLoginTestActivity;
-import org.hyochan.testapplication.pinchzoom_test.PinchzoomTest;
+import org.hyochan.testapplication.pinchzoom_test.PinchzoomTestActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(getApplicationContext(), ClipboardTestActivity.class));
                         break;
                     case 1:
-                        startActivity(new Intent(getApplicationContext(), PinchzoomTest.class));
+                        startActivity(new Intent(getApplicationContext(), PinchzoomTestActivity.class));
+                        break;
                     case 2:
                         startActivity(new Intent(getApplicationContext(), NaverLoginTestActivity.class));
                         break;

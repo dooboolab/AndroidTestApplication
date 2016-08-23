@@ -19,7 +19,8 @@
         </activity>
         <activity android:name=".clipboard_test.ClipboardTestActivity" />
         <activity android:name=".naver_test.NaverLoginTestActivity" />
-        <activity android:name=".pinchzoom_test.PinchzoomTest"></activity>
+        <activity android:name=".pinchzoom_test.PinchzoomTestActivity" />
+        <activity android:name=".pinchzoom_test.ZoomImgActivity"/>
     </application>
 
 </manifest>
