@@ -1,4 +1,4 @@
-package org.hyochan.testapplication.utils;
+package org.hyochan.testapplication.pinchzoom_test;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,16 +7,18 @@ import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
+import org.hyochan.testapplication.utils.ImgCacheUtil;
+
 import java.lang.ref.WeakReference;
 
 /**
  * Created by hyochan on 2016-08-18.
  */
-public class LoadThumbImgTask extends AsyncTask<Integer, Void, Bitmap> {
+public class PinchLoadThumbImgTask extends AsyncTask<Integer, Void, Bitmap> {
     private final WeakReference<ImageView> imageViewReference;
     private Context context;
 
-    public LoadThumbImgTask(Context context, ImageView imageView) {
+    public PinchLoadThumbImgTask(Context context, ImageView imageView) {
         this.context = context;
         imageViewReference = new WeakReference<>(imageView);
     }

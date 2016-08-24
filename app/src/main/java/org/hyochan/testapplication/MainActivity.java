@@ -11,6 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.hyochan.testapplication.clipboard_test.ClipboardTestActivity;
+import org.hyochan.testapplication.multi_imagepicker_test.MultiImagePickerTest;
 import org.hyochan.testapplication.naver_test.NaverLoginTestActivity;
 import org.hyochan.testapplication.pinchzoom_test.PinchzoomTestActivity;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         String[] values = new String[] {
                 "클립보드 복붙 테스트",
                 "핀치 줌 테스트",
+                "멀티 이미지 픽커 테스트",
                 "네이버 로그인 테스트"
         };
 
@@ -68,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(getApplicationContext(), PinchzoomTestActivity.class));
                         break;
                     case 2:
+                        startActivity(new Intent(getApplicationContext(), MultiImagePickerTest.class));
+                        break;
+                    case 3:
                         startActivity(new Intent(getApplicationContext(), NaverLoginTestActivity.class));
                         break;
                 }

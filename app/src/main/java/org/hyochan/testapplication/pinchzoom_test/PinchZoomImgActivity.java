@@ -8,14 +8,14 @@ import org.hyochan.testapplication.R;
 
 import java.util.ArrayList;
 
-public class ZoomImgActivity extends AppCompatActivity {
+public class PinchZoomImgActivity extends AppCompatActivity {
 
-    private String TAG = "ZoomImgActivity";
+    private String TAG = "PinchZoomImgActivity";
 
     ViewPager viewPager;
-    FullScreenImageAdapter adapter;
+    PinchFullScreenImageAdapter adapter;
 
-    private ArrayList<MyItem> arrayList;
+    private ArrayList<PinchItem> arrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,13 +23,13 @@ public class ZoomImgActivity extends AppCompatActivity {
         setContentView(R.layout.activity_zoom_img);
 
         // touchImageView = (TouchImageView) findViewById(R.id.touch_img);
-        arrayList = (ArrayList<MyItem>) getIntent().getSerializableExtra("myitems");
+        arrayList = (ArrayList<PinchItem>) getIntent().getSerializableExtra("myitems");
 
         viewPager = (ViewPager) findViewById(R.id.pager);
 
         int position = getIntent().getIntExtra("position", 0);
 
-        adapter = new FullScreenImageAdapter(this, arrayList);
+        adapter = new PinchFullScreenImageAdapter(this, arrayList);
 
 
         viewPager.setAdapter(adapter);

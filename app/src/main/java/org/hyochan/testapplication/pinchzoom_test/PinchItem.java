@@ -5,11 +5,11 @@ import java.io.Serializable;
 /**
  * Created by hyochan on 2016-08-23.
  */
-public class MyItem implements Serializable {
+public class PinchItem implements Serializable {
     private int drawable;
     private String txt;
 
-    public MyItem(int drawable, String txt) {
+    public PinchItem(int drawable, String txt) {
         this.drawable = drawable;
         this.txt = txt;
     }

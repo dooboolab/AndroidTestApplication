@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.hyochan.testapplication.R;
-import org.hyochan.testapplication.utils.LoadThumbImgTask;
 
 import java.util.ArrayList;
 
@@ -36,17 +35,17 @@ public class PinchzoomTestActivity extends AppCompatActivity {
         gridView = (GridView) findViewById(R.id.grid_view);
 
 
-        final ArrayList<MyItem> arrayList = new ArrayList<>();
-        arrayList.add(new MyItem(R.drawable.wallpapaer1, "wallpaper 1" ));
-        arrayList.add(new MyItem(R.drawable.wallpapaer2, "wallpaper 2" ));
-        arrayList.add(new MyItem(R.drawable.wallpapaer3, "wallpaper 3" ));
+        final ArrayList<PinchItem> arrayList = new ArrayList<>();
+        arrayList.add(new PinchItem(R.drawable.wallpapaer1, "wallpaper 1" ));
+        arrayList.add(new PinchItem(R.drawable.wallpapaer2, "wallpaper 2" ));
+        arrayList.add(new PinchItem(R.drawable.wallpapaer3, "wallpaper 3" ));
 
         gridView.setAdapter(new MyGridAdapter(arrayList));
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getApplicationContext(), ZoomImgActivity.class);
+                Intent intent = new Intent(getApplicationContext(), PinchZoomImgActivity.class);
                 // intent.putExtra("drawable", arrayList.get(i).getDrawable());
                 intent.putExtra("myitems", arrayList);
                 intent.putExtra("position", i);
@@ -57,7 +56,7 @@ public class PinchzoomTestActivity extends AppCompatActivity {
 
     private class MyGridAdapter extends BaseAdapter {
         private LayoutInflater layoutInflater;
-        private ArrayList<MyItem> arrayList;
+        private ArrayList<PinchItem> arrayList;
         private ViewHolder viewHolder;
 
         private class ViewHolder {
@@ -65,7 +64,7 @@ public class PinchzoomTestActivity extends AppCompatActivity {
             public TextView txtView;
         }
 
-        public MyGridAdapter(ArrayList<MyItem> arrayList) {
+        public MyGridAdapter(ArrayList<PinchItem> arrayList) {
             layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             this.arrayList = arrayList;
         }
@@ -76,7 +75,7 @@ public class PinchzoomTestActivity extends AppCompatActivity {
         }
 
         @Override
-        public MyItem getItem(int i) {
+        public PinchItem getItem(int i) {
             return arrayList.get(i);
         }
 
@@ -88,7 +87,7 @@ public class PinchzoomTestActivity extends AppCompatActivity {
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             if(view == null){
-                view = layoutInflater.inflate(R.layout.grid_item, viewGroup, false);
+                view = layoutInflater.inflate(R.layout.pinch_grid_item, viewGroup, false);
                 viewHolder = new ViewHolder();
                 viewHolder.txtView = (TextView) view.findViewById(R.id.txt);
                 viewHolder.imgView = (ImageView) view.findViewById(R.id.img);
@@ -97,7 +96,7 @@ public class PinchzoomTestActivity extends AppCompatActivity {
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            new LoadThumbImgTask(getApplicationContext(), viewHolder.imgView)
+            new PinchLoadThumbImgTask(getApplicationContext(), viewHolder.imgView)
                     .execute(arrayList.get(i).getDrawable());
             viewHolder.txtView.setText(arrayList.get(i).getTxt());
 

@@ -4,7 +4,7 @@
     android:id="@+id/rel"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.hyochan.testapplication.pinchzoom_test.ZoomImgActivity">
+    tools:context=".pinchzoom_test.PinchZoomImgActivity">
 <!--
     <org.hyochan.testapplication.utils.TouchImageView
         android:id="@+id/touch_img"

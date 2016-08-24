@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import org.hyochan.testapplication.R;
-import org.hyochan.testapplication.utils.LoadThumbImgTask;
 import org.hyochan.testapplication.utils.TouchImageView;
 
 import java.util.ArrayList;
@@ -19,14 +18,14 @@ import java.util.ArrayList;
 /**
  * Created by hyochan on 2016-08-23.
  */
-public class FullScreenImageAdapter extends PagerAdapter {
+public class PinchFullScreenImageAdapter extends PagerAdapter {
 
     private Activity activity;
-    private ArrayList<MyItem> arrayList;
+    private ArrayList<PinchItem> arrayList;
     private LayoutInflater inflater;
 
     // constructor
-    public FullScreenImageAdapter(Activity activity, ArrayList<MyItem> arrayList) {
+    public PinchFullScreenImageAdapter(Activity activity, ArrayList<PinchItem> arrayList) {
         this.activity = activity;
         this.arrayList = arrayList;
     }
@@ -53,7 +52,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
 
         imgDisplay = (TouchImageView) viewLayout.findViewById(R.id.img_display);
         btnClose = (Button) viewLayout.findViewById(R.id.btn_close);
-        new LoadThumbImgTask(activity, imgDisplay)
+        new PinchLoadThumbImgTask(activity, imgDisplay)
                 .execute(arrayList.get(position).getDrawable());
 
         // close button click event
