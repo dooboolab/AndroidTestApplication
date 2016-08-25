@@ -1,29 +1,24 @@
 package org.hyochan.testapplication.multi_imagepicker_test;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +26,6 @@ import org.hyochan.testapplication.BuildConfig;
 import org.hyochan.testapplication.R;
 
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,14 +45,16 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
     Button btnImage;
     GridView gridView;
 
-    private ArrayList<MultiImageItem> arrayList;
-    private MyGridAdapter myGridAdapter;
+    private ArrayList<MultiImageItem> mainItems;
+    private ArrayList<MultiImageItem> thumbItems;
+    private MultiImageGridAdapter multiImageGridAdapter;
 
     // lists saved with camera photo taken
-    ArrayList<String> cameraTakenLists = new ArrayList<>();
+    ArrayList<String> savedImgsList = new ArrayList<>();
 
     // permission
     private final int PERMISSION_REQ_BEFORE_TAKING_PHOTO = 111;
+    private final int PERMISSION_REQ_BEFORE_CHOOSING_GALLERY = 222;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,110 +71,61 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
 
         gridView = (GridView) findViewById(R.id.grid_view);
 
-        arrayList = new ArrayList<>();
+        mainItems = new ArrayList<>();
+        thumbItems = new ArrayList<>();
 
         // TEST : 저장된 사진 불러오기
-        File dirFile = new File(Environment.getExternalStorageDirectory(), "/");
+        File dirFile = new File(Environment.getExternalStorageDirectory(), "/TestApplication");
         File files[] = dirFile.listFiles();
-        Log.d("Files", "Size: "+ files.length);
-        for (int i=0; i < files.length; i++)
-        {
-            Log.d("Files", "FileName:" + files[i].getName());
-        }
+        if(files != null){
+            Log.d("Files", "Size: "+ files.length);
+            for(File file : files){
+                if (!file.isDirectory()) {
 
-        for(File file : files){
-            if (!file.isDirectory()) {
-                if(file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")){
-                    Log.d("Parsed Files", "FileName:" + file.getName());
-                    cameraTakenLists.add(file.getName());
-                    arrayList.add(new MultiImageItem(Uri.fromFile(file).toString(), null));
+                    // TODO : item이 다르게 들어간다. sorting을 하던지 dir path를 불러와서 같이 adding을 하던지 해야함.
+/*
+                    if(file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")){
+                        Log.d("Parsed Files", "FileName:" + file.getName());
+                        savedImgsList.add(file.getName());
+                        mainItems.add(new MultiImageItem(Uri.fromFile(file).toString(), file.getName()));
+                     } else if(file.getName().startsWith("thumb_tmp") && file.getName().endsWith(".jpg")){
+                        thumbItems.add(new MultiImageItem(Uri.fromFile(file).toString(), file.getName()));
+                    }
+*/
+                    // 위 문제 해결 1번 째 방법
+                    if(file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")){
+                        Log.d("Parsed Files", "FileName:" + file.getName());
+
+                        // 1. 메인 아이템 추가
+                        savedImgsList.add(file.getName());
+                        mainItems.add(new MultiImageItem(Uri.fromFile(file).toString(), file.getName()));
+
+                        // 2. 썸네일 추가
+                        File thumbFile = new File(dirFile, "/thumb_" + file.getName());
+                        thumbItems.add(new MultiImageItem(Uri.fromFile(thumbFile).toString(), "thumb_" + file.getName()));
+                    }
                 }
             }
         }
-        myGridAdapter = new MyGridAdapter(arrayList);
-        gridView.setAdapter(myGridAdapter);
+        multiImageGridAdapter = new MultiImageGridAdapter(getApplicationContext(), thumbItems, mainItems);
+        gridView.setAdapter(multiImageGridAdapter);
 
-    }
-
-    private class MyGridAdapter extends BaseAdapter {
-        private LayoutInflater layoutInflater;
-        private ArrayList<MultiImageItem> arrayList;
-        private ViewHolder viewHolder;
-
-        private class ViewHolder {
-            public ImageView imgView;
-            public Button btnClose;
-        }
-
-        public MyGridAdapter(ArrayList<MultiImageItem> arrayList) {
-            layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            this.arrayList = arrayList;
-        }
-
-        @Override
-        public int getCount() {
-            return arrayList.size();
-        }
-
-        public void addItem(MultiImageItem item){
-            arrayList.add(item);
-        }
-
-        @Override
-        public MultiImageItem getItem(int i) {
-            return arrayList.get(i);
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return i;
-        }
-
-        @Override
-        public View getView(final int i, View view, ViewGroup viewGroup) {
-            if(view == null){
-                view = layoutInflater.inflate(R.layout.multiimage_grid_item, viewGroup, false);
-                viewHolder = new ViewHolder();
-                viewHolder.btnClose = (Button) view.findViewById(R.id.btn_close);
-                viewHolder.imgView = (ImageView) view.findViewById(R.id.img);
-                view.setTag(viewHolder);
-            } else {
-                viewHolder = (ViewHolder) view.getTag();
-            }
-
-            new MultiImageLoadTumbImgTask(getApplicationContext(), viewHolder.imgView, arrayList.get(i)).execute();
-
-            viewHolder.btnClose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    arrayList.remove(i);
-                    notifyDataSetChanged();
-                }
-            });
-
-            viewHolder.imgView.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View view){
-                    Intent intent = new Intent(getApplicationContext(), MultiImageZoomActivity.class);
-                    // intent.putExtra("drawable", arrayList.get(i).getDrawable());
-                    intent.putExtra("myitems", arrayList);
-                    intent.putExtra("position", i);
-                    startActivity(intent);
-                }
-            });
-
-            return view;
-        }
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_image:
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                photoPickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(photoPickerIntent, imgReq);
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            PERMISSION_REQ_BEFORE_CHOOSING_GALLERY);
+                } else {
+                    startMyActivityForResult(imgReq);
+                }
                 break;
             case R.id.btn_camera:
                 int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -191,7 +138,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             PERMISSION_REQ_BEFORE_TAKING_PHOTO);
                 } else {
-                    startCameraActivityForResult();
+                    startMyActivityForResult(cameraReq);
                 }
                 break;
         }
@@ -204,61 +151,68 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
         if(resultCode == RESULT_OK){
             switch (requestCode){
                 case cameraReq:
-                    String fileName1 = "tmp" + cameraTakenLists.size() + ".jpg";
-                    cameraTakenLists.add(fileName1);
-                    File cameraPath = new File(Environment.getExternalStorageDirectory(), fileName1);
+                    String fileName1 = "tmp" + savedImgsList.size() + ".jpg";
+                    savedImgsList.add(fileName1);
+                    File cameraPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/" + fileName1);
                     Uri uri1 = Uri.fromFile(cameraPath);
-                    if(uri1 != null) myGridAdapter.addItem(new MultiImageItem(uri1.toString(), null));
+
+                    if(uri1 != null) {
+                        try{
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri1);
+                            Bitmap thumbBitmap = ThumbnailUtils.extractThumbnail(bitmap, 150, 150);
+                            // 2. save thumbnail
+                            File thumbPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/thumb_" + fileName1);
+                            thumbPath.createNewFile();
+                            FileOutputStream fos2 = new FileOutputStream(thumbPath);
+                            thumbBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos2);
+
+
+                            multiImageGridAdapter.addMainItem(new MultiImageItem(uri1.toString(), fileName1));
+                            multiImageGridAdapter.addThumbItem(new MultiImageItem(Uri.fromFile(thumbPath).toString(), fileName1));
+                            multiImageGridAdapter.notifyDataSetChanged();
+
+                        } catch (FileNotFoundException ex){
+                            Log.d(TAG, "not found : " + ex.getMessage());
+                        } catch (IOException ex){
+                            Log.d(TAG, "io exception : " + ex.getMessage());
+                        }
+                    }
                     break;
                 case imgReq:
                     final ClipData clipData = data.getClipData();
                     if(clipData != null) {
+                        final ProgressDialog progressDialog;
+                        progressDialog = new ProgressDialog(MultiImagePickerTest.this);
+                        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                        progressDialog.setMessage("로딩중입니다...");
+                        progressDialog.setCancelable(false);
+                        progressDialog.show();
                         for (int i = 0; i < clipData.getItemCount(); i++){
-                            ClipData.Item item = clipData.getItemAt(i);
-                            Uri uri2 = item.getUri();
-                            // TODO : 아래 주석 지우고 밑에줄 주석 처리
-                            myGridAdapter.addItem(new MultiImageItem(uri2.toString(), null));
-
-                            String fileName2 = "tmp" + cameraTakenLists.size() + ".jpg";
-                            File galleryPath = new File(Environment.getExternalStorageDirectory(), fileName2);
-
-                            try{
-                                ParcelFileDescriptor parcelFileDescriptor =
-                                        getApplicationContext().getContentResolver().openFileDescriptor(uri2, "r");
-                                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-                                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-                                parcelFileDescriptor.close();
-
-                                FileOutputStream fos = null;
-                                fos = new FileOutputStream(galleryPath);
-                                // Use the compress method on the BitMap object to write image to the OutputStream
-                                image.compress(Bitmap.CompressFormat.PNG, 100, fos);
-
-                                cameraTakenLists.add(fileName2);
-                                // myGridAdapter.addItem(new MultiImageItem(Uri.fromFile(galleryPath).toString(), null));
-
-                            } catch (FileNotFoundException fe){
-                                Log.d(TAG, "file not found : " + fe.getMessage());
-                            } catch (IOException ie){
-                                Log.d(TAG, "IOException : " + ie.getMessage());
-                            } catch (NullPointerException ne){
-                                Log.d(TAG, "NullPointerException for fos : " + ne.getMessage());
-                            }
-
+                            final String fileName2 = "tmp" + (savedImgsList.size()+i) + ".jpg";
+                            new MultiImageCopyFileTask(getApplicationContext(), fileName2, i, clipData.getItemAt(i), new MultiImageCopyFileTask.OnTaskCompleted() {
+                                @Override
+                                public void onTaskCompleted(MultiImageItem multiImageItem, int numTask, File thumbPath) {
+                                    Log.d(TAG, "onTaskCompleted : " + numTask);
+                                    multiImageGridAdapter.addMainItem(multiImageItem);
+                                    multiImageGridAdapter.addThumbItem(new MultiImageItem(Uri.fromFile(thumbPath).toString(), "thumb_" + multiImageItem.getimageName()));
+                                    savedImgsList.add(fileName2);
+                                    multiImageGridAdapter.notifyDataSetChanged();
+                                    if (progressDialog != null && progressDialog.isShowing()){
+                                        int percentage = (((numTask+1) * 100)/clipData.getItemCount());
+                                        Log.d(TAG, "percentage : " + percentage);
+                                        progressDialog.setProgress(percentage);
+                                        if(numTask+1 == clipData.getItemCount()) {
+                                            Log.d(TAG, "task done");
+                                            progressDialog.dismiss();
+                                        }
+                                    }
+                                }
+                            }).execute();
 
                             // In case you need image's absolute path
                             // String path= getRealPathFromURI(getActivity(), uri)
                         }
                     }
-                    myGridAdapter.notifyDataSetChanged();
-
-/*
-                    final Uri imageUri = data.getData();
-                    if(imageUri != null){
-                        myGridAdapter.addItem(new MultiImageItem(imageUri, null));
-                        myGridAdapter.notifyDataSetChanged();
-                    }
-*/
                     break;
             }
         }
@@ -268,32 +222,50 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
+            case PERMISSION_REQ_BEFORE_CHOOSING_GALLERY:
             case PERMISSION_REQ_BEFORE_TAKING_PHOTO: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startCameraActivityForResult();
+                    File file = new File(Environment.getExternalStorageDirectory(), "/TestApplication");
+                    if (!file.exists()) {
+                        if (!file.mkdirs()) {
+                            Log.e(TAG, "Problem creating Image folder");
+                        }
+                    }
+                    startMyActivityForResult(requestCode);
                 } else {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Toast.makeText(this, "사진 저장 외부 권한을 허용해주세요.", Toast.LENGTH_SHORT).show();
                 }
-                return;
+                break;
             }
-
             // other 'case' lines to check for other
             // permissions this app might request
         }
     }
 
-    private void startCameraActivityForResult(){
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        String fileName = "tmp" + cameraTakenLists.size() + ".jpg";
-        File photoPath = new File(Environment.getExternalStorageDirectory(), fileName);
-        Uri photoURI = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", photoPath);
-        cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoURI);
-        startActivityForResult(cameraIntent, cameraReq);
+    private void startMyActivityForResult(int requestCode){
+
+        switch (requestCode){
+            case cameraReq:
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                String fileName = "tmp" + savedImgsList.size() + ".jpg";
+                File photoPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/" + fileName);
+                Uri photoURI = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", photoPath);
+                cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(cameraIntent, cameraReq);
+                break;
+            case imgReq:
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                photoPickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                startActivityForResult(photoPickerIntent, imgReq);
+                break;
+        }
     }
+
 }

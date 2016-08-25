@@ -3,16 +3,13 @@ package org.hyochan.testapplication.multi_imagepicker_test;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageView;
 
 import org.hyochan.testapplication.utils.ImgCacheUtil;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -36,30 +33,16 @@ public class MultiImageLoadTumbImgTask extends AsyncTask<Void, Void, Bitmap> {
     protected Bitmap doInBackground(Void... params) {
         Bitmap bitmap = null;
 
-        // path가 없으면 uri로 불러옴
-        if(multiImageItem.getimageName() == null || multiImageItem.getimageName().equals("")){
-            try{
-                final InputStream imageStream = context.getContentResolver().openInputStream(Uri.parse(multiImageItem.getStrUri()));
-                bitmap = BitmapFactory.decodeStream(imageStream);
-            } catch (FileNotFoundException fn){
-                Log.d("file not found", "exception : " + fn.getMessage());
-            }
-        }
-        // path 불러옴
-        else {
-            bitmap = ImgCacheUtil.getInstance().getBitmap(multiImageItem.getimageName());
-            if(bitmap != null) return bitmap;
+        if(multiImageItem.getimageName() != null) bitmap = ImgCacheUtil.getInstance().getBitmap(multiImageItem.getimageName());
+        if(bitmap != null) return bitmap;
 
-            File tmpPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication" );
-            File myPath = new File(tmpPath, multiImageItem.getimageName());
-            if (myPath.exists()) {
-                Log.d("MultiImage", "imgExists : " + myPath);
-                // 파일이 있으면 imgView에 띄우기
-                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                bitmap = BitmapFactory.decodeFile(myPath.getAbsolutePath(), bmOptions);
-            }
+        try{
+            final InputStream imageStream = context.getContentResolver().openInputStream(Uri.parse(multiImageItem.getStrUri()));
+            bitmap = BitmapFactory.decodeStream(imageStream);
+            // bitmap = ThumbnailUtils.extractThumbnail(bitmap, 100, 100);
+        } catch (FileNotFoundException fn){
+            Log.d("file not found", "exception : " + fn.getMessage());
         }
-        bitmap = ThumbnailUtils.extractThumbnail(bitmap, 800, 800);
         return bitmap;
     }
 
