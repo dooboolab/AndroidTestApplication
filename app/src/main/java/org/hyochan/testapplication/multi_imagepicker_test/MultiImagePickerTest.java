@@ -46,11 +46,10 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
     GridView gridView;
 
     private ArrayList<MultiImageItem> mainItems;
-    private ArrayList<MultiImageItem> thumbItems;
     private MultiImageGridAdapter multiImageGridAdapter;
 
     // lists saved with camera photo taken
-    ArrayList<String> savedImgsList = new ArrayList<>();
+    private ArrayList<String> savedImgsList = new ArrayList<>();
 
     // permission
     private final int PERMISSION_REQ_BEFORE_TAKING_PHOTO = 111;
@@ -72,7 +71,6 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
         gridView = (GridView) findViewById(R.id.grid_view);
 
         mainItems = new ArrayList<>();
-        thumbItems = new ArrayList<>();
 
         // TEST : 저장된 사진 불러오기
         File dirFile = new File(Environment.getExternalStorageDirectory(), "/TestApplication");
@@ -82,7 +80,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
             for(File file : files){
                 if (!file.isDirectory()) {
 
-                    // TODO : item이 다르게 들어간다. sorting을 하던지 dir path를 불러와서 같이 adding을 하던지 해야함.
+                    // PROBLEM : item이 다르게 들어간다. sorting을 하던지 dir path를 불러와서 같이 adding을 하던지 해야함.
 /*
                     if(file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")){
                         Log.d("Parsed Files", "FileName:" + file.getName());
@@ -93,6 +91,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                     }
 */
                     // 위 문제 해결 1번 째 방법
+/*
                     if(file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")){
                         Log.d("Parsed Files", "FileName:" + file.getName());
 
@@ -101,13 +100,23 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                         mainItems.add(new MultiImageItem(Uri.fromFile(file).toString(), file.getName()));
 
                         // 2. 썸네일 추가
+                        Environment.getExternalStorageDirectory(), "/TestApplication"
                         File thumbFile = new File(dirFile, "/thumb_" + file.getName());
                         thumbItems.add(new MultiImageItem(Uri.fromFile(thumbFile).toString(), "thumb_" + file.getName()));
                     }
                 }
+*/
+                    // 위 문제 해결 2번 째 방법 : MultiImageItem 생성자에서 직접 해줌
+                    if (file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")) {
+                        Log.d("Parsed Files", "FileName:" + file.getName());
+
+                        savedImgsList.add(file.getName());
+                        mainItems.add(new MultiImageItem(Uri.fromFile(file).toString(), file.getName()));
+                    }
+                }
             }
         }
-        multiImageGridAdapter = new MultiImageGridAdapter(getApplicationContext(), thumbItems, mainItems);
+        multiImageGridAdapter = new MultiImageGridAdapter(getApplicationContext(), mainItems);
         gridView.setAdapter(multiImageGridAdapter);
 
     }
@@ -159,7 +168,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                     if(uri1 != null) {
                         try{
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri1);
-                            Bitmap thumbBitmap = ThumbnailUtils.extractThumbnail(bitmap, 150, 150);
+                            Bitmap thumbBitmap = ThumbnailUtils.extractThumbnail(bitmap, 400, 400);
                             // 2. save thumbnail
                             File thumbPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/thumb_" + fileName1);
                             thumbPath.createNewFile();
@@ -167,8 +176,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                             thumbBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos2);
 
 
-                            multiImageGridAdapter.addMainItem(new MultiImageItem(uri1.toString(), fileName1));
-                            multiImageGridAdapter.addThumbItem(new MultiImageItem(Uri.fromFile(thumbPath).toString(), fileName1));
+                            multiImageGridAdapter.addItem(new MultiImageItem(uri1.toString(), fileName1));
                             multiImageGridAdapter.notifyDataSetChanged();
 
                         } catch (FileNotFoundException ex){
@@ -191,10 +199,9 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                             final String fileName2 = "tmp" + (savedImgsList.size()+i) + ".jpg";
                             new MultiImageCopyFileTask(getApplicationContext(), fileName2, i, clipData.getItemAt(i), new MultiImageCopyFileTask.OnTaskCompleted() {
                                 @Override
-                                public void onTaskCompleted(MultiImageItem multiImageItem, int numTask, File thumbPath) {
+                                public void onTaskCompleted(MultiImageItem multiImageItem, int numTask) {
                                     Log.d(TAG, "onTaskCompleted : " + numTask);
-                                    multiImageGridAdapter.addMainItem(multiImageItem);
-                                    multiImageGridAdapter.addThumbItem(new MultiImageItem(Uri.fromFile(thumbPath).toString(), "thumb_" + multiImageItem.getimageName()));
+                                    multiImageGridAdapter.addItem(multiImageItem);
                                     savedImgsList.add(fileName2);
                                     multiImageGridAdapter.notifyDataSetChanged();
                                     if (progressDialog != null && progressDialog.isShowing()){

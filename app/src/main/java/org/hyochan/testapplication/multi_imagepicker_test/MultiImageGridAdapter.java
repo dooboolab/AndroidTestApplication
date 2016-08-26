@@ -24,8 +24,7 @@ public class MultiImageGridAdapter extends BaseAdapter {
     private final String TAG = "MultiImageGridAdapter";
 
     private LayoutInflater layoutInflater;
-    private ArrayList<MultiImageItem> thumbItems;
-    private ArrayList<MultiImageItem> mainItems;
+    private ArrayList<MultiImageItem> items;
     private ViewHolder viewHolder;
     private Context context;
 
@@ -34,29 +33,24 @@ public class MultiImageGridAdapter extends BaseAdapter {
         public Button btnClose;
     }
 
-    public MultiImageGridAdapter(Context context, ArrayList<MultiImageItem> thumbItems, ArrayList<MultiImageItem> mainItems) {
+    public MultiImageGridAdapter(Context context, ArrayList<MultiImageItem> items) {
         this.context = context;
         this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.thumbItems = thumbItems;
-        this.mainItems = mainItems;
+        this.items = items;
     }
 
     @Override
     public int getCount() {
-        return thumbItems.size();
+        return items.size();
     }
 
-    public void addThumbItem(MultiImageItem item){
-        thumbItems.add(item);
-    }
-
-    public void addMainItem(MultiImageItem item){
-        mainItems.add(item);
+    public void addItem(MultiImageItem item){
+        items.add(item);
     }
 
     @Override
     public MultiImageItem getItem(int i) {
-        return thumbItems.get(i);
+        return items.get(i);
     }
 
     @Override
@@ -76,13 +70,13 @@ public class MultiImageGridAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) view.getTag();
         }
 
-        new MultiImageLoadTumbImgTask(context, viewHolder.imgView, thumbItems.get(i)).execute();
+        new MultiImageLoadTumbImgTask(context, viewHolder.imgView, items.get(i)).execute();
 
         viewHolder.btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // 1. 썸네일 삭제
-                File tmpPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/" + thumbItems.get(i).getimageName());
+                File tmpPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/thumb_" + items.get(i).getimageName());
                 Log.d(TAG, "file delete : " + tmpPath);
                 if (tmpPath.exists()) {
                     // 파일이 존재하면 삭제
@@ -90,12 +84,11 @@ public class MultiImageGridAdapter extends BaseAdapter {
                 }
 
                 // 2. 매인 이미지 삭제
-                tmpPath = new File(Environment.getExternalStorageDirectory(), "TestApplication/" + mainItems.get(i).getimageName());
+                tmpPath = new File(Environment.getExternalStorageDirectory(), "TestApplication/" + items.get(i).getimageName());
                 if(tmpPath.exists()){
                     tmpPath.delete();
                 }
-                mainItems.remove(i);
-                thumbItems.remove(i);
+                items.remove(i);
                 notifyDataSetChanged();
             }
         });
@@ -104,7 +97,7 @@ public class MultiImageGridAdapter extends BaseAdapter {
             @Override
             public void onClick(View view){
                 Intent intent = new Intent(context, MultiImageZoomActivity.class);
-                intent.putExtra("myitems", mainItems);
+                intent.putExtra("myitems", items);
                 intent.putExtra("position", i);
                 context.startActivity(intent);
             }

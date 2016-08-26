@@ -1,5 +1,9 @@
 package org.hyochan.testapplication.multi_imagepicker_test;
 
+import android.net.Uri;
+import android.os.Environment;
+
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -10,10 +14,12 @@ public class MultiImageItem implements Serializable{
     private String strUri;
     private String imageName; // imageName가 없으면 intent로 부터 받아왔다는 이야기, 있으면 파일로부터 받아옴
 
-    public MultiImageItem(String strUri, String imageName) {
-        this.thumbUri = thumbUri;
+    public MultiImageItem(String strUri, String imgName) {
         this.strUri = strUri;
-        this.imageName = imageName;
+        this.imageName = imgName;
+
+        File thumbFile = new File(Environment.getExternalStorageDirectory(), "/TestApplication/thumb_" + imgName);
+        this.thumbUri = Uri.fromFile(thumbFile).toString();
     }
 
     public String getThumbUri() {

@@ -37,7 +37,7 @@ public class MultiImageLoadTumbImgTask extends AsyncTask<Void, Void, Bitmap> {
         if(bitmap != null) return bitmap;
 
         try{
-            final InputStream imageStream = context.getContentResolver().openInputStream(Uri.parse(multiImageItem.getStrUri()));
+            final InputStream imageStream = context.getContentResolver().openInputStream(Uri.parse(multiImageItem.getThumbUri()));
             bitmap = BitmapFactory.decodeStream(imageStream);
             // bitmap = ThumbnailUtils.extractThumbnail(bitmap, 100, 100);
         } catch (FileNotFoundException fn){

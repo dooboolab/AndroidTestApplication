@@ -30,7 +30,7 @@ public class MultiImageCopyFileTask extends AsyncTask<Void, Void, MultiImageItem
     private File thumbPath;
 
     public interface OnTaskCompleted{
-        void onTaskCompleted(MultiImageItem multiImageItem, int numTask, File thumbPath);
+        void onTaskCompleted(MultiImageItem multiImageItem, int numTask);
     }
 
     public MultiImageCopyFileTask(Context context, String fileName, int numTask, ClipData.Item clipItem, OnTaskCompleted listener) {
@@ -64,7 +64,7 @@ public class MultiImageCopyFileTask extends AsyncTask<Void, Void, MultiImageItem
 
 
             // 2. save thumbnail
-            Bitmap thumbBitmap = ThumbnailUtils.extractThumbnail(imgPath, 150, 150);
+            Bitmap thumbBitmap = ThumbnailUtils.extractThumbnail(imgPath, 400, 400);
             thumbPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/thumb_" + fileName);
             thumbPath.createNewFile();
             FileOutputStream fos2 = new FileOutputStream(thumbPath);
@@ -90,7 +90,7 @@ public class MultiImageCopyFileTask extends AsyncTask<Void, Void, MultiImageItem
     @Override
     protected void onPostExecute(MultiImageItem multiImageItem) {
         Log.d(TAG, "onTaskCompleted");
-        listener.onTaskCompleted(multiImageItem, numTask, thumbPath);
+        listener.onTaskCompleted(multiImageItem, numTask);
 
         super.onPostExecute(multiImageItem);
     }
