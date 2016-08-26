@@ -83,6 +83,7 @@ public class MultiImageGridAdapter extends BaseAdapter {
                     tmpPath.delete();
                 }
 
+
                 // 2. 매인 이미지 삭제
                 tmpPath = new File(Environment.getExternalStorageDirectory(), "TestApplication/" + items.get(i).getimageName());
                 if(tmpPath.exists()){

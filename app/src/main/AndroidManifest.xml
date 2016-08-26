@@ -3,8 +3,8 @@
     package="org.hyochan.testapplication">
 
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -19,8 +19,9 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,8 +33,9 @@
         <activity android:name=".naver_test.NaverLoginTestActivity" />
         <activity android:name=".pinchzoom_test.PinchzoomTestActivity" />
         <activity android:name=".pinchzoom_test.PinchZoomImgActivity" />
-        <activity android:name=".multi_imagepicker_test.MultiImagePickerTest"/>
-        <activity android:name=".multi_imagepicker_test.MultiImageZoomActivity"/>
+        <activity android:name=".multi_imagepicker_test.MultiImagePickerTest" />
+        <activity android:name=".multi_imagepicker_test.MultiImageZoomActivity" />
+        <activity android:name=".naver_test.NaverLoginBrowserActivity"></activity>
     </application>
 
 </manifest>

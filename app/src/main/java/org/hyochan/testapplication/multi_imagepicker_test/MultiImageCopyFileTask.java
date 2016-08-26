@@ -67,11 +67,11 @@ public class MultiImageCopyFileTask extends AsyncTask<Void, Void, MultiImageItem
             Bitmap thumbBitmap = ThumbnailUtils.extractThumbnail(imgPath, 400, 400);
             thumbPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/thumb_" + fileName);
             thumbPath.createNewFile();
-            FileOutputStream fos2 = new FileOutputStream(thumbPath);
-            thumbBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos2);
+            FileOutputStream fos = new FileOutputStream(thumbPath);
+            thumbBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
 
-            Log.d(TAG, "fileName 2 : " + fileName + " is added");
+            Log.d(TAG, "fileName : " + fileName + " is added");
 
             return new MultiImageItem(Uri.fromFile(galleryPath).toString(), fileName);
 

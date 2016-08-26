@@ -40,6 +40,9 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
     private final int cameraReq = 100;
     private final int imgReq = 200;
 
+    private String cameraFileName;
+    private Uri cameraUri;
+
     TextView txtTitle;
 
     Button btnCamera;
@@ -162,22 +165,18 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
         if(resultCode == RESULT_OK){
             switch (requestCode){
                 case cameraReq:
-                    String fileName1 = "tmp_" + UUID.randomUUID().toString().replaceAll("-", "") + ".png";
-                    savedImgsList.add(fileName1);
-                    File cameraPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/" + fileName1);
-                    Uri uri1 = Uri.fromFile(cameraPath);
-
-                    if(uri1 != null) {
+                    if(cameraUri != null && cameraFileName != null) {
                         try{
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri1);
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), cameraUri);
                             Bitmap thumbBitmap = ThumbnailUtils.extractThumbnail(bitmap, 400, 400);
                             // 2. save thumbnail
-                            File thumbPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/thumb_" + fileName1);
+                            File thumbPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/thumb_" + cameraFileName);
                             thumbPath.createNewFile();
-                            FileOutputStream fos2 = new FileOutputStream(thumbPath);
-                            thumbBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos2);
+                            FileOutputStream fos = new FileOutputStream(thumbPath);
+                            thumbBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
-                            multiImageGridAdapter.addItem(new MultiImageItem(uri1.toString(), fileName1));
+                            savedImgsList.add(cameraFileName);
+                            multiImageGridAdapter.addItem(new MultiImageItem(cameraUri.toString(), cameraFileName));
                             multiImageGridAdapter.notifyDataSetChanged();
 
                         } catch (FileNotFoundException ex){
@@ -197,13 +196,13 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                         progressDialog.setCancelable(false);
                         progressDialog.show();
                         for (int i = 0; i < clipData.getItemCount(); i++){
-                            final String fileName2 = "tmp_" + UUID.randomUUID().toString().replaceAll("-", "") + ".png";
-                            new MultiImageCopyFileTask(getApplicationContext(), fileName2, i, clipData.getItemAt(i), new MultiImageCopyFileTask.OnTaskCompleted() {
+                            final String imgFileName = "tmp_" + UUID.randomUUID().toString().replaceAll("-", "") + ".png";
+                            new MultiImageCopyFileTask(getApplicationContext(), imgFileName, i, clipData.getItemAt(i), new MultiImageCopyFileTask.OnTaskCompleted() {
                                 @Override
                                 public void onTaskCompleted(MultiImageItem multiImageItem, int numTask) {
                                     Log.d(TAG, "onTaskCompleted : " + numTask);
                                     multiImageGridAdapter.addItem(multiImageItem);
-                                    savedImgsList.add(fileName2);
+                                    savedImgsList.add(imgFileName);
                                     multiImageGridAdapter.notifyDataSetChanged();
                                     if (progressDialog != null && progressDialog.isShowing()){
                                         int percentage = (((numTask+1) * 100)/clipData.getItemCount());
@@ -261,10 +260,11 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
             case cameraReq:
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                String fileName = "tmp_" + savedImgsList.size() + ".png";
-                File photoPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/" + fileName);
-                Uri photoURI = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", photoPath);
-                cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoURI);
+
+                cameraFileName = "tmp_" + UUID.randomUUID().toString().replaceAll("-", "") + ".png";
+                File cameraPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/" + cameraFileName);
+                cameraUri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", cameraPath);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
                 startActivityForResult(cameraIntent, cameraReq);
                 break;
             case imgReq:

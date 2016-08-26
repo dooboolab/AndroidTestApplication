@@ -17,12 +17,12 @@ import java.lang.ref.WeakReference;
 /**
  * Created by hyochan on 2016-08-18.
  */
-public class MultiImageLoadTumbImgTask extends AsyncTask<Void, Void, Bitmap> {
+public class MultiImageLoadMainImgTask extends AsyncTask<Void, Void, Bitmap> {
     private final WeakReference<ImageView> imageViewReference;
     private Context context;
     private MultiImageItem multiImageItem;
 
-    public MultiImageLoadTumbImgTask(Context context, ImageView imageView, MultiImageItem multiImageItem) {
+    public MultiImageLoadMainImgTask(Context context, ImageView imageView, MultiImageItem multiImageItem) {
         this.context = context;
         imageViewReference = new WeakReference<>(imageView);
         this.multiImageItem = multiImageItem;
@@ -33,13 +33,13 @@ public class MultiImageLoadTumbImgTask extends AsyncTask<Void, Void, Bitmap> {
     protected Bitmap doInBackground(Void... params) {
         Bitmap bitmap = null;
 
-        if(multiImageItem.getimageName() != null) bitmap = ImgCacheUtil.getInstance().getBitmap("thumb_" + multiImageItem.getimageName());
+        if(multiImageItem.getimageName() != null) bitmap = ImgCacheUtil.getInstance().getBitmap(multiImageItem.getimageName());
         if(bitmap != null) return bitmap;
 
         try{
-            final InputStream imageStream = context.getContentResolver().openInputStream(Uri.parse(multiImageItem.getThumbUri()));
+            final InputStream imageStream = context.getContentResolver().openInputStream(Uri.parse(multiImageItem.getStrUri()));
             bitmap = BitmapFactory.decodeStream(imageStream);
-            ImgCacheUtil.getInstance().addBitmap("thumb_" + multiImageItem.getimageName(), bitmap);
+            ImgCacheUtil.getInstance().addBitmap(multiImageItem.getimageName(), bitmap);
             // bitmap = ThumbnailUtils.extractThumbnail(bitmap, 100, 100);
         } catch (FileNotFoundException fn){
             Log.d("file not found", "exception : " + fn.getMessage());
