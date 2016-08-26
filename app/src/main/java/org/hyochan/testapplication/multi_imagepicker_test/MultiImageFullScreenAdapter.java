@@ -2,8 +2,11 @@ package org.hyochan.testapplication.multi_imagepicker_test;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,8 @@ import android.widget.RelativeLayout;
 import org.hyochan.testapplication.R;
 import org.hyochan.testapplication.utils.TouchImageView;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -47,13 +52,18 @@ public class MultiImageFullScreenAdapter extends PagerAdapter {
 
         inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View viewLayout = inflater.inflate(R.layout.fullscreen_image, container,
-                false);
+        View viewLayout = inflater.inflate(R.layout.fullscreen_image, container, false);
 
         imgDisplay = (TouchImageView) viewLayout.findViewById(R.id.img_display);
         btnClose = (Button) viewLayout.findViewById(R.id.btn_close);
-        new MultiImageLoadTumbImgTask(activity, imgDisplay, arrayList.get(position))
-                .execute();
+        // new MultiImageLoadTumbImgTask(activity, imgDisplay, arrayList.get(position)).execute();
+        try{
+            final InputStream imageStream = activity.getContentResolver().openInputStream(Uri.parse(arrayList.get(position).getStrUri()));
+            imgDisplay.setImageBitmap(BitmapFactory.decodeStream(imageStream));
+            ((ViewPager) container).addView(viewLayout);
+        } catch (FileNotFoundException e){
+            Log.d("tag", "exception : " + e.getMessage());
+        }
 
         // close button click event
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -62,8 +72,6 @@ public class MultiImageFullScreenAdapter extends PagerAdapter {
                 activity.finish();
             }
         });
-
-        ((ViewPager) container).addView(viewLayout);
 
         return viewLayout;
     }

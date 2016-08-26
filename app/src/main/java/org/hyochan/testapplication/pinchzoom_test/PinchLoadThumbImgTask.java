@@ -3,7 +3,6 @@ package org.hyochan.testapplication.pinchzoom_test;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
@@ -30,8 +29,7 @@ public class PinchLoadThumbImgTask extends AsyncTask<Integer, Void, Bitmap> {
 
         Bitmap bitmap = ImgCacheUtil.getInstance().getBitmap(drawable[0].toString());
         if(bitmap == null){
-            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), drawable[0]);
-            bitmap = ThumbnailUtils.extractThumbnail(icon, 1280, 800);
+            bitmap = BitmapFactory.decodeResource(context.getResources(), drawable[0]);
             ImgCacheUtil.getInstance().addBitmap(drawable[0].toString(), bitmap);
         }
 
