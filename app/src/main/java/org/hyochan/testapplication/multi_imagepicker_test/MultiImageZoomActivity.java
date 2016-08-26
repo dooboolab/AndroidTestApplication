@@ -28,7 +28,6 @@ public class MultiImageZoomActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.pager);
 
         int position = getIntent().getIntExtra("position", 0);
-
         adapter = new MultiImageFullScreenAdapter(this, arrayList);
 
 

@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class MultiImagePickerTest extends AppCompatActivity implements View.OnClickListener{
 
@@ -54,6 +55,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
     // permission
     private final int PERMISSION_REQ_BEFORE_TAKING_PHOTO = 111;
     private final int PERMISSION_REQ_BEFORE_CHOOSING_GALLERY = 222;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,17 +84,17 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
 
                     // PROBLEM : item이 다르게 들어간다. sorting을 하던지 dir path를 불러와서 같이 adding을 하던지 해야함.
 /*
-                    if(file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")){
+                    if(file.getName().startsWith("tmp") && file.getName().endsWith(".png")){
                         Log.d("Parsed Files", "FileName:" + file.getName());
                         savedImgsList.add(file.getName());
                         mainItems.add(new MultiImageItem(Uri.fromFile(file).toString(), file.getName()));
-                     } else if(file.getName().startsWith("thumb_tmp") && file.getName().endsWith(".jpg")){
+                     } else if(file.getName().startsWith("thumb_tmp") && file.getName().endsWith(".png")){
                         thumbItems.add(new MultiImageItem(Uri.fromFile(file).toString(), file.getName()));
                     }
 */
                     // 위 문제 해결 1번 째 방법
 /*
-                    if(file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")){
+                    if(file.getName().startsWith("tmp") && file.getName().endsWith(".png")){
                         Log.d("Parsed Files", "FileName:" + file.getName());
 
                         // 1. 메인 아이템 추가
@@ -107,7 +109,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                 }
 */
                     // 위 문제 해결 2번 째 방법 : MultiImageItem 생성자에서 직접 해줌
-                    if (file.getName().startsWith("tmp") && file.getName().endsWith(".jpg")) {
+                    if (file.getName().startsWith("tmp_") && file.getName().endsWith(".png")) {
                         Log.d("Parsed Files", "FileName:" + file.getName());
 
                         savedImgsList.add(file.getName());
@@ -160,7 +162,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
         if(resultCode == RESULT_OK){
             switch (requestCode){
                 case cameraReq:
-                    String fileName1 = "tmp" + savedImgsList.size() + ".jpg";
+                    String fileName1 = "tmp_" + UUID.randomUUID().toString().replaceAll("-", "") + ".png";
                     savedImgsList.add(fileName1);
                     File cameraPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/" + fileName1);
                     Uri uri1 = Uri.fromFile(cameraPath);
@@ -174,7 +176,6 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                             thumbPath.createNewFile();
                             FileOutputStream fos2 = new FileOutputStream(thumbPath);
                             thumbBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos2);
-
 
                             multiImageGridAdapter.addItem(new MultiImageItem(uri1.toString(), fileName1));
                             multiImageGridAdapter.notifyDataSetChanged();
@@ -196,7 +197,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
                         progressDialog.setCancelable(false);
                         progressDialog.show();
                         for (int i = 0; i < clipData.getItemCount(); i++){
-                            final String fileName2 = "tmp" + (savedImgsList.size()+i) + ".jpg";
+                            final String fileName2 = "tmp_" + UUID.randomUUID().toString().replaceAll("-", "") + ".png";
                             new MultiImageCopyFileTask(getApplicationContext(), fileName2, i, clipData.getItemAt(i), new MultiImageCopyFileTask.OnTaskCompleted() {
                                 @Override
                                 public void onTaskCompleted(MultiImageItem multiImageItem, int numTask) {
@@ -260,7 +261,7 @@ public class MultiImagePickerTest extends AppCompatActivity implements View.OnCl
             case cameraReq:
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                String fileName = "tmp" + savedImgsList.size() + ".jpg";
+                String fileName = "tmp_" + savedImgsList.size() + ".png";
                 File photoPath = new File(Environment.getExternalStorageDirectory(), "/TestApplication/" + fileName);
                 Uri photoURI = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", photoPath);
                 cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoURI);

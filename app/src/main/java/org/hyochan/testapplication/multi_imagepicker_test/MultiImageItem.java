@@ -10,6 +10,7 @@ import java.io.Serializable;
  * Created by hyochan on 2016-08-24.
  */
 public class MultiImageItem implements Serializable{
+    private int id;
     private String thumbUri;
     private String strUri;
     private String imageName; // imageName가 없으면 intent로 부터 받아왔다는 이야기, 있으면 파일로부터 받아옴
@@ -43,6 +44,22 @@ public class MultiImageItem implements Serializable{
     }
 
     public void setimageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
         this.imageName = imageName;
     }
 }
