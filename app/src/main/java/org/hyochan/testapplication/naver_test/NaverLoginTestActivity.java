@@ -3,15 +3,22 @@ package org.hyochan.testapplication.naver_test;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.nhn.android.naverlogin.OAuthLogin;
 import com.nhn.android.naverlogin.OAuthLoginHandler;
 import com.nhn.android.naverlogin.ui.view.OAuthLoginButton;
 
 import org.hyochan.testapplication.R;
+import org.hyochan.testapplication.network.Network;
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 
 public class NaverLoginTestActivity extends AppCompatActivity {
 
@@ -30,6 +37,8 @@ public class NaverLoginTestActivity extends AppCompatActivity {
     private TextView txtOauthTokenType;
     private TextView txtOauthState;
 
+    private TextView txtProfile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +48,8 @@ public class NaverLoginTestActivity extends AppCompatActivity {
 
         txtTitle = (TextView) findViewById(R.id.txt_title);
         txtTitle.setText("Naver Login Test");
+
+        txtProfile = (TextView) findViewById(R.id.txt_profile);
 
         txtOauthAt = (TextView) findViewById(R.id.txt_oauth_at);
         txtOauthRt = (TextView) findViewById(R.id.txt_oauth_rt);
@@ -86,6 +97,31 @@ public class NaverLoginTestActivity extends AppCompatActivity {
                 txtOauthExpires.setText(String.valueOf(expiresAt));
                 txtOauthTokenType.setText(tokenType);
                 txtOauthState.setText(mOAuthLoginModule.getState(context).toString());
+
+                AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+                asyncHttpClient.addHeader("Authorization", "Bearer " + accessToken);
+                Network.getInstance(context).reqGet(asyncHttpClient, "https://openapi.naver.com/v1/nid/me", null, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        super.onSuccess(statusCode, headers, response);
+                        try {
+                            txtProfile.setText(response.toString());
+                       } catch (Exception e) {
+                            Log.d(TAG, "exception : " + e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        super.onFailure(statusCode, headers, throwable, errorResponse);
+                        try {
+                            txtProfile.setText(errorResponse.toString());
+                        } catch (Exception e) {
+                            Log.d(TAG, "exception : " + e.getMessage());
+                        }
+                    }
+                });
+
             } else {
                 String errorCode = mOAuthLoginModule.getLastErrorCode(context).getCode();
                 String errorDesc = mOAuthLoginModule.getLastErrorDesc(context);

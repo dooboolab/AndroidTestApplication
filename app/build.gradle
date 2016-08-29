@@ -8,8 +8,8 @@ android {
         applicationId "org.hyochan.testapplication"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 2
-        versionName "1.1"
+        versionCode 6
+        versionName "1.5"
     }
     buildTypes {
         release {
@@ -24,4 +24,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile project(':3rdparty_login_library_android_4.1.4')
+    compile 'com.loopj.android:android-async-http:1.4.9'
 }

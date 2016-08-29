@@ -28,7 +28,7 @@ public class ClipboardTestActivity extends AppCompatActivity {
         txtConsole = (TextView) findViewById(R.id.txt_console);
 
         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        if(clipboard.getPrimaryClip() != null){
+        if(clipboard.getPrimaryClip() != null && clipboard.hasPrimaryClip()){
             editText.setText(clipboard.getPrimaryClip().getItemAt(0).coerceToText(this));
 
             txtConsole.setText(
@@ -41,8 +41,10 @@ public class ClipboardTestActivity extends AppCompatActivity {
             // 문자열이 6줄 이하면 리턴
             if(msgSplit.length < 6) return;
 
+/*
             Log.d(TAG, "msgSplit[1] : " + msgSplit[1].substring(4,6));
             Log.d(TAG, "msgSplit[1] : " + msgSplit[1].substring(7,9));
+*/
 
             for(String str : msgSplit){
                 Log.d(TAG, "str : " + str);
