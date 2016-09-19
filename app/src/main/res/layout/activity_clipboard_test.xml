@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".clipboard_test.ClipboardTestActivity">
+    <include
+        layout="@layout/rel_title"
+        android:id="@+id/rel_title" />
+    <RelativeLayout
+        android:layout_below="@+id/rel_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/txt"
+            android:layout_marginTop="25dp"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="붙여넣기를 실행해보세요."/>
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_margin="30dp"
+            android:layout_below="@id/txt"
+            android:minWidth="200dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:id="@+id/txt_console"
+            android:layout_margin="30dp"
+            android:layout_below="@id/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+</RelativeLayout>
