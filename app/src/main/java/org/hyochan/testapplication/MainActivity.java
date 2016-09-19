@@ -11,6 +11,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.hyochan.testapplication.clipboard_test.ClipboardTestActivity;
+import org.hyochan.testapplication.google_test.login.GoogleLoginTestActivity;
+import org.hyochan.testapplication.google_test.map.GoogleMapTestActivity;
 import org.hyochan.testapplication.multi_imagepicker_test.MultiImagePickerTest;
 import org.hyochan.testapplication.naver_test.NaverLoginTestActivity;
 
@@ -35,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
         String[] values = new String[] {
                 "클립보드 복붙 테스트",
                 "멀티 이미지 픽커 테스트",
-                "네이버 로그인 테스트"
+                "네이버 로그인 테스트",
+                "구글 로그인 테스트",
+                "구글 지도 테스트"
         };
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -70,6 +74,11 @@ public class MainActivity extends AppCompatActivity {
                     case 2:
                         startActivity(new Intent(getApplicationContext(), NaverLoginTestActivity.class));
                         break;
+                    case 3:
+                        startActivity(new Intent(getApplicationContext(), GoogleLoginTestActivity.class));
+                        break;
+                    case 4:
+                        startActivity(new Intent(getApplicationContext(), GoogleMapTestActivity.class));
                 }
             }
         });
